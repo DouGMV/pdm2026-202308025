@@ -1,4 +1,4 @@
-# Mapa de empatía — Douglas
+# Mapa de empatía — Douglas Morales
 
 ## Datos de la entrevista
 
