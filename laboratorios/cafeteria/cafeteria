@@ -48,6 +48,30 @@ class _MiPedidoPageState extends State<MiPedidoPage> {
   ];
 
   List<int> _cantidades = List.filled(_productos.length, 0);
+  
+  void _incrementar(int i) {
+    setState(() => _cantidades[i]++);
+  }
+
+  void _decrementar(int i) {
+    if (_cantidades[i] == 0) return;
+    setState(() => _cantidades[i]--);
+  }
+  
+  double get _total {
+    double total = 0;
+    for (int i = 0; i < _productos.length; i++) {
+      total += _productos[i].precio * _cantidades[i];
+    }
+    return total;
+  }
+
+  void _vaciarPedido() {
+    setState(() => _cantidades = List.filled(_productos.length, 0));
+  }
+  
+  
+  
 
   @override
     @override
@@ -74,8 +98,8 @@ class _MiPedidoPageState extends State<MiPedidoPage> {
                   precio: p.precio,
                   icono: p.icono,
                   cantidad: _cantidades[i],
-                  onIncrementar: () => print('+1 a ${p.nombre}'),
-                  onDecrementar: () => print('-1 a ${p.nombre}'),
+                  onIncrementar: () => _incrementar(i),
+                  onDecrementar: () => _decrementar(i),
                 );
               },
             ),
