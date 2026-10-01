@@ -14,13 +14,195 @@ class CafeteriaApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF6B4226),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Mi pedido'),
-          centerTitle: true,
-        ),
-        body: const Center(child: Text('Aquí irán los productos')),
+      home: const MiPedidoPage(),
+    );
+  }
+}
+
+// Modelo
+class Producto {
+  final String nombre;
+  final double precio;
+  final IconData icono;
+
+  const Producto({
+    required this.nombre,
+    required this.precio,
+    required this.icono,
+  });
+}
+
+// Estado
+class MiPedidoPage extends StatefulWidget {
+  const MiPedidoPage({super.key});
+
+  @override
+  State<MiPedidoPage> createState() => _MiPedidoPageState();
+}
+
+class _MiPedidoPageState extends State<MiPedidoPage> {
+  static const List<Producto> _productos = [
+    Producto(nombre: 'Café', precio: 10.00, icono: Icons.coffee),
+    Producto(nombre: 'Sándwich', precio: 25.00, icono: Icons.lunch_dining),
+    Producto(nombre: 'Jugo', precio: 12.00, icono: Icons.local_drink),
+  ];
+
+  List<int> _cantidades = List.filled(_productos.length, 0);
+
+  @override
+    @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mi pedido'),
+        centerTitle: true,
       ),
+      body: Column(
+        children: [
+          // Zona de productos
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: _productos.length,
+              separatorBuilder: (_, __) => const Divider(height: 24),
+              itemBuilder: (context, i) {
+                final p = _productos[i];
+                return ProductoPedido(
+                  nombre: p.nombre,
+                  precio: p.precio,
+                  icono: p.icono,
+                  cantidad: _cantidades[i],
+                  onIncrementar: () => print('+1 a ${p.nombre}'),
+                  onDecrementar: () => print('-1 a ${p.nombre}'),
+                );
+              },
+            ),
+          ),
+          // Pie con total y botón
+          SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: tema.colorScheme.surfaceContainerHighest,
+                border: Border(
+                  top: BorderSide(color: tema.dividerColor),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Total', style: tema.textTheme.titleLarge),
+                      Text(
+                        'Q0.00',
+                        style: tema.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () => print('Vaciar pedido'),
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Vaciar pedido'),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProductoPedido extends StatelessWidget {
+  final String nombre;
+  final double precio;
+  final IconData icono;
+  final int cantidad;
+  final VoidCallback onIncrementar;
+  final VoidCallback onDecrementar;
+
+  const ProductoPedido({
+    super.key,
+    required this.nombre,
+    required this.precio,
+    required this.icono,
+    required this.cantidad,
+    required this.onIncrementar,
+    required this.onDecrementar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: tema.colorScheme.primaryContainer,
+          child: Icon(icono, color: tema.colorScheme.onPrimaryContainer),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(nombre, style: tema.textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text(
+                'Q${precio.toStringAsFixed(2)}',
+                style: tema.textTheme.bodyMedium?.copyWith(
+                  color: tema.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: tema.colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Quitar uno',
+                icon: const Icon(Icons.remove),
+                onPressed: cantidad > 0 ? onDecrementar : null,
+              ),
+              SizedBox(
+                width: 28,
+                child: Text(
+                  '$cantidad',
+                  textAlign: TextAlign.center,
+                  style: tema.textTheme.titleMedium,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Agregar uno',
+                icon: const Icon(Icons.add),
+                onPressed: onIncrementar,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
